@@ -7,9 +7,14 @@ Here we use Snakemake to execute the workflow in a Cloud called ifb‑aubi‑osc
 
 **appliance : BioPipes**
 
+
+The main snakemake file is **Snakefile_WF_withOpenJDK**
+
 To run the entire workflow, the command line is:
 
 > $ snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK 
+
+Others snakefiles contain just a specific rule or a part of the workflow. The file Snakemake_WF is an alternative workflow without the DeepTools analysis.
 
 All the files env.yaml and config.yaml are in the config directory.
 
