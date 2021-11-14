@@ -3,11 +3,23 @@
 The purpose of this project is to execute the same analysis worflow describe in the HPC project in this github in another way.
 Here we use Snakemake to execute the workflow in a Cloud called ifb‑aubi‑oscar with 8 cores, 32 Go of memory and 128 Go of stockage.
 
-**cloud deployment access : ubuntu@193.49.167.105**
+**cloud deployment access ssh : ubuntu@193.49.167.105**
 
 **appliance : BioPipes**
 
-To run the entire workflow
+To run the entire workflow, the command line is:
+
+> $ snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK 
+
+All the files env.yaml and config.yaml are in the config directory.
+
+All the data come from  student22@193.49.167.88 :
+
+Genome:
+> /home/users/shared/databanks/bio/ncbi/genomes/Mus_musculus/Mus_musculus_GRCm38.p6/Mus_musculus_2020-7-9/fasta/
+
+Indexes : 
+> /home/users/shared/databanks/bio/ncbi/genomes/Mus_musculus/Mus_musculus_GRCm38.p6/Mus_musculus_2020-7-9/bowtie2/
 
 
 # Snakemake Rules:
