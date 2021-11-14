@@ -1,0 +1,200 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/fastqc_init/{sample}_fastqc.zip", sample = config["samples"]),
+		expand("results/fastqc_init/{sample}_fastqc.html", sample = config["samples"]),
+		expand("results/cutadapt/{sample}_1.fastq", sample = config["samplesCut"]),
+		expand("results/cutadapt/{sample}_2.fastq", sample = config["samplesCut"]),
+		expand("results/fastqc_post/{sample}_fastqc.zip", sample = config["samples"]),
+		expand("results/fastqc_post/{sample}_fastqc.html", sample = config["samples"]),
+        expand("results/bowtie2/{sample}_trim_mapped_sorted_q2.bam", sample = config["samplesCut"]),
+		expand("results/markduplicates/{sample}_lessDup.bam", sample = config["samplesCut"]),
+		expand("results/markduplicates/{sample}_lessDup.bam.bai", sample = config["samplesCut"]),
+		expand("results/macs2/{sample}_summits.bed", sample = config["samplesCut"]),
+		expand("results/bedtools/{sample}_0h_24h_common_peaks.bed", sample =config["idBedtools"]),
+		expand("results/bedtools/{sample}_0h_unique_peaks.bed", sample =config["idBedtools"]),
+		expand("results/bedtools/{sample}_24h_unique_peaks.bed", sample =config["idBedtools"])
+
+rule unzip:
+	input:
+		lambda wildcards: config["samples"][wildcards.sample]
+	output:
+		temp("tmp/{sample}.fastq")
+	log: "logs/unzip/{sample}.unzip.log"
+	shell:
+		"""
+		mkdir -p tmp
+		gunzip -c {input} > {output}
+		"""
+
+rule fastqc_init:
+	input:
+		"tmp/{sample}.fastq"
+	output:
+		zip="results/fastqc_init/{sample}_fastqc.zip",
+		html="results/fastqc_init/{sample}_fastqc.html"
+		
+	conda:
+		"config/env.yaml"
+	benchmark:
+		"benchmarks/fastqc_init/{sample}.fastqc.benchmark.txt"
+	threads: 6
+	log: "logs/fastqc_init/{sample}.fastqc.log"
+	shell:
+		"""
+		mkdir -p results/fastqc_init
+		echo " Here we start the fastqc_init analysis (jobid ={jobid}) for {input}"
+		fastqc {input} -o "results/fastqc_init" -t {threads}
+		"""
+	
+rule cutadapt:
+	input:
+		["tmp/{samplesCut}_1.fastq","tmp/{samplesCut}_2.fastq"]
+
+	output:
+		fastq1="results/cutadapt/{samplesCut}_1.fastq",
+		fastq2="results/cutadapt/{samplesCut}_2.fastq",
+		qc="results/cutadapt/{samplesCut}.qc.txt"
+
+	params:
+		adapters="-a CTGTCTCTTATACACATCTCCGAGCCCACGAGAC -A CTGTCTCTTATACACATCTGACGCTGCCGACGA",
+		extra="--minimum-length 20 -q 20"
+	benchmark:
+		"benchmarks/cutadapt/{samplesCut}.cutadapt.benchmark.txt"
+	log:
+		"logs/cutadapt/{samplesCut}.log"
+	threads: 0  #set desired number of threads here - To automatically detect the number of available cores, use -j 0 (or --cores=0). In the wrapper : " -j {snakemake.threads}"
+	wrapper:
+		"0.79.0/bio/cutadapt/pe"
+		
+
+rule fastqc_post:
+	input:
+		"results/cutadapt/{sample}.fastq"
+
+	output:
+		html="results/fastqc_post/{sample}_fastqc.html",
+		zip="results/fastqc_post/{sample}_fastqc.zip"
+	conda:
+		"config/env.yaml"
+	benchmark:
+		"benchmarks/fastqc_post/{sample}.fastqc.benchmark.txt"
+	threads: 6
+	log: "logs/fastqc_post/{sample}.fastqc.log"
+	shell:
+		"""
+		mkdir -p results/fastqc_post
+		fastqc {input} -o "results/fastqc_post" -t {threads}
+		"""
+
+
+rule bowtie2:
+    input:
+        fastq1="results/cutadapt/{samplesB}_1.fastq", 
+        fastq2="results/cutadapt/{samplesB}_2.fastq"
+    output:
+        "results/bowtie2/{samplesB}_trim_mapped_sorted_q2.bam"
+    conda:
+        "config/envBowtie2.yaml"
+    benchmark:
+        "benchmarks/bowtie2/{samplesB}_trim_mapped_sorted_q2.benchmark.txt"
+    threads: 6
+    log: "logs/bowtie2/{samplesB}_trim_mapped_sorted_q2.log"
+
+    shell:
+        """
+        bowtie2  --very-sensitive -p 6 -k 10  -x /home/ubuntu/data/mydatalocal/atacseq/indexes/bowtie2/all \
+        -1 {input.fastq1} -2 {input.fastq2} 2>./logs/bowtie2/errMessage.txt \
+        |  samtools view -q 2 -b -u -@ {threads}|  samtools sort -o {output} -@ {threads}
+        samtools index -b {output}
+        """
+
+
+rule markduplicates:
+	input:
+		"results/bowtie2/{sample}_trim_mapped_sorted_q2.bam"
+	output:
+		f="results/markduplicates/{sample}_lessDup.bam",
+		txt="results/markduplicates/{sample}_lessDup_metrics.txt"
+	benchmark:
+		"benchmarks/markduplicates/{sample}_lessDup.benchmark.txt"
+	threads : 8
+	log:
+		"logs/markduplicates/{sample}_lessDup.log"
+	shell:
+		"""
+		java -jar ./.snakemake/conda/73bc5b329231ee9e8a80bc3c404d1652/share/picard-2.26.5-0/picard.jar MarkDuplicates \
+		-I {input} \
+		-O {output.f} \
+		-REMOVE_DUPLICATES true\
+		--METRICS_FILE {output.txt}
+		"""
+
+
+
+
+rule samtools:
+	input:
+		"results/markduplicates/{sample}_lessDup.bam"
+	output:
+		"results/markduplicates/{sample}_lessDup.bam.bai"
+	conda:
+		"config/envMarkDuplicates.yaml"
+	benchmark:
+		"benchmarks/samtools/{sample}_lessDup.benchmark.txt"
+	threads : 8
+	log:
+		"logs/samtools/{sample}_samtools.log"
+	shell:
+		"""
+		echo "smatools after markduplicates...."
+		samtools index -b {input} {output}
+		"""
+
+
+
+rule macs2:
+	input:
+		"results/markduplicates/{sample}_lessDup.bam"
+	output:
+		"results/macs2/{sample}_summits.bed"
+	conda:
+		"config/envMacs2.yaml"
+	benchmark:
+		"benchmarks/macs2/{sample}.benchmark.txt"
+	threads : 8
+	log:
+		"logs/macs2/{sample}.log"
+	shell:
+		"""
+		mkdir -p  results/macs2/tmpdir
+		macs2 callpeak -t {input}\
+		-f BAM  \
+		-n {wildcards.sample}\
+		--outdir results/macs2/\
+		--tempdir results/macs2/tmpdir 2>{log}
+		"""
+
+
+
+
+rule bedtools:
+	input:
+		h0="results/macs2/ss_50k_0h_{sample}_summits.bed",
+		h24="results/macs2/ss_50k_24h_{sample}_summits.bed"
+	output:
+		common="results/bedtools/{sample}_0h_24h_common_peaks.bed",
+		unique0h="results/bedtools/{sample}_0h_unique_peaks.bed",
+		unique24h="results/bedtools/{sample}_24h_unique_peaks.bed"
+	conda:
+		"config/envBedTools.yaml"
+
+	log:
+		"logs/bedtools/{sample}.log"
+	shell:
+		"""
+		bedtools intersect -a {input.h0} -b {input.h24} > {output.common}
+		bedtools intersect -a {input.h0} -b {input.h24} > {output.unique0h}
+		bedtools intersect -a {input.h24} -b {input.h0} > {output.unique24h}
+		"""
