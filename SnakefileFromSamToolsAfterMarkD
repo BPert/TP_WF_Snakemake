@@ -1,0 +1,51 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+        expand("results/samtools/{sample_samtools.bam", sample = config["samplesCut"])
+#		expand("results/macs2/{sample}_macs2.bed", sample = config["samplesCut"])
+
+rule samtools:
+    input:
+        "results/markduplicates/{sample}_lessDup.bam"
+    output:
+        "results/samtools/{sample}_samtools.bam"
+	conda:
+		"config/envMarkDuplicates.yaml"
+	benchmark:
+		"benchmarks/samtools/{sample}_lessDup.benchmark.txt"
+	threads : 8
+	log:
+		"logs/samtools/{sample}_samtools.log"
+	shell:
+        """
+        echo "smatools after markduplicates...."
+        samtools index -b {output}
+        """
+
+
+rule macs2:
+	input:
+		"results/samtools/{sample}_samtools.bam"
+	output:
+		"results/macs2/{sample}_macs2.bed"
+	conda:
+		"config/envMacs2.yaml"
+	benchmark:
+		"benchmarks/macs2/{sample}_macs2.benchmark.txt"
+	threads : 8
+	log:
+		"logs/macs2/{sample}_macs2.log"
+	shell:   
+		"""
+		mkdir -p  results/macs2/tmpdir
+		macs2 callpeak -t {input}\
+ 		-f BAM  \
+		-n {output}\
+		--outdir results/macs2/\
+		--tempdir results/macs2/tmpdir
+		"""
+
+
+        
+# revoir le tmpdir... effacer 

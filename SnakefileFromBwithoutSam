@@ -1,0 +1,88 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/bowtie2/{sample}_trim_mapped_sorted_q2.bam", sample = config["samplesCut"]),
+		expand("results/markduplicates/{sample}_lessDup.bam", sample = config["samplesCut"]),
+		expand("results/macs2/{sample}_macs2.bed", sample = config["samplesCut"])
+
+rule bowtie2:
+	input:
+		fastq1="results/cutadapt/{samplesB}_1.fastq", 
+		fastq2="results/cutadapt/{samplesB}_2.fastq"
+	output:
+		"results/bowtie2/{samplesB}_trim_mapped_sorted_q2.bam"
+#	wildcard_constraints:
+#		samplesCut=".*R[123]"
+	conda:
+		"config/envBowtie2.yaml"
+	benchmark:
+		"benchmarks/bowtie2/{samplesB}_trim_mapped_sorted_q2.benchmark.txt"
+	threads: 8 
+	log: "logs/bowtie2/{samplesB}_trim_mapped_sorted_q2.log"
+
+	shell:
+		"""
+		bowtie2  --very-sensitive -p 6 -k 10  -x /home/ubuntu/data/mydatalocal/atacseq/indexes/bowtie2/all \
+		-1 {input.fastq1} -2 {input.fastq2} 2>./logs/bowtie2/errMessage.txt \
+		|  samtools view -q 2 -b -u |  samtools sort -o {output} 
+		samtools index -b {output}
+		"""
+
+
+#		-1 "results/cutadapt/{samplesB}_1.cutadapt.fastq"  -2 "results/cutadapt/{samplesB}_2.cutadapt.fastq" \
+#		|  samtools view -q 2 -bS  -  |  samtools sort - -o {samplesB}_trim_mapped_sorted_q2.bam
+#       |  samtools view -q 2 -b 
+#       1>./logs/bowtie2/standartOut.txt
+
+
+
+rule markduplicates:
+	input: #input:  rules.a.output
+		"results/bowtie2/{sample}_trim_mapped_sorted_q2.bam"
+	output:
+		f="results/markduplicates/{sample}_lessDup.bam",
+		txt="results/markduplicates/{sample}_lessDup_metrics.txt"
+	conda:
+		"config/envMarkDuplicates.yaml"
+	benchmark:
+		"benchmarks/markduplicates/{sample}_lessDup.benchmark.txt"
+	threads : 8
+	log:
+		"logs/markduplicates/{sample}_lessDup.log"
+	shell:
+		"""
+		java -jar ./.snakemake/conda/73bc5b329231ee9e8a80bc3c404d1652/share/picard-2.26.5-0/picard.jar MarkDuplicates \
+		-I {input} \
+		-O {output.f} \
+		-REMOVE_DUPLICATES true\
+		--METRICS_FILE {output.txt}
+		samtools index -b {output.f}
+		"""
+#       M="results/markduplicates"
+#		java -jar /opt/apps/picard-2.18.25/picard.jar MarkDuplicates \
+#         java -jar ./.snakemake/conda/73bc5b329231ee9e8a80bc3c404d1652/share/picard-2.26.5-0/picard.jar MarkDuplicates \
+
+rule macs2:
+	input:
+		"results/markduplicates/{sample}_lessDup.bam"
+	output:
+		"results/macs2/{sample}_macs2.bed"
+	conda:
+		"config/envMacs2.yaml"
+	benchmark:
+		"benchmarks/macs2/{sample}_macs2.benchmark.txt"
+	threads : 8
+	log:
+		"logs/macs2/{sample}_macs2.log"
+	shell:
+		"""
+		mkdir -p  results/macs2/tmpdir
+		macs2 callpeak -t {input}\
+		 -f BAM  \
+		-n {output}\
+		--outdir results/macs2/\
+		--tempdir results/macs2/tmpdir
+		"""
+		
+# revoir le tmpdir... effacer 

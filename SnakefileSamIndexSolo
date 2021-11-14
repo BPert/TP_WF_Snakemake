@@ -1,0 +1,24 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/markduplicates/{sample}_lessDup.bam.bai", sample = config["samplesCut"])
+
+
+rule samtools:
+	input:
+		"results/markduplicates/{sample}_lessDup.bam"
+	output:
+		"results/markduplicates/{sample}_lessDup.bam.bai"
+	conda:
+		"config/envMarkDuplicates.yaml"
+	benchmark:
+		"benchmarks/samtools/{sample}_lessDup.benchmark.txt"
+	threads : 8
+	log:
+		"logs/samtools/{sample}_samtools.log"
+	shell:
+		"""
+		echo "smatools after markduplicates...."
+		samtools index -b {input} {output}
+		"""

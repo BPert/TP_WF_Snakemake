@@ -1,0 +1,35 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/bedtools/{sample}_0h_24h_common_peaks.bed", sample =config["idBedtools"]),
+		expand("results/bedtools/{sample}_0h_unique_peaks.bed", sample =config["idBedtools"]),
+		expand("results/bedtools/{sample}_24h_unique_peaks.bed", sample =config["idBedtools"])
+
+#		expand("results/bedtools/{sample}_0h_24h_common_peaks.bed", sample in ["R1","R2","R3"]),
+#		expand("results/bedtools/{sample}_0h_unique_peaks.bed", sample in ["R1","R2","R3"]),
+#		expand("results/bedtools/{sample}_24h_unique_peaks.bed", sample in ["R1","R2","R3"])		
+# ss_50k_0h_R2_summits.bed
+
+
+rule bedtools:
+	input:
+		h0="results/macs2/ss_50k_0h_{sample}_summits.bed",
+		h24="results/macs2/ss_50k_24h_{sample}_summits.bed"
+	output:
+		common="results/bedtools/{sample}_0h_24h_common_peaks.bed",
+		unique0h="results/bedtools/{sample}_0h_unique_peaks.bed",
+		unique24h="results/bedtools/{sample}_24h_unique_peaks.bed"
+	conda:
+		"config/envBedTools.yaml"
+#	benchmark:
+#		"benchmarks/bedtools/{sample}.benchmark.txt"
+#	threads : 8
+	log:
+		"logs/bedtools/{sample}.log"
+	shell:
+		"""
+		bedtools intersect -a {input.h0} -b {input.h24} > {output.common}
+		bedtools intersect -a {input.h0} -b {input.h24} > {output.unique0h}
+		bedtools intersect -a {input.h24} -b {input.h0} > {output.unique24h}
+		"""

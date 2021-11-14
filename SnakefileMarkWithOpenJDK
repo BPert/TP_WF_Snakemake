@@ -1,0 +1,31 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/markduplicates/{sample}_lessDup.bam", sample = config["samplesCut"]),
+        expand("results/markduplicates/{sample}_lessDup.bam.bai", sample = config["samplesCut"])
+
+
+rule markduplicates:
+	input: 
+		"results/bowtie2/{sample}_trim_mapped_sorted_q2.bam"
+	output:
+		f="results/markduplicates/{sample}_lessDup.bam",
+        bai="results/markduplicates/{sample}_lessDup.bam.bai",
+		txt="results/markduplicates/{sample}_lessDup_metrics.txt"
+	conda:
+		"config/envMarkWithOpenJDK.yaml"
+	benchmark:
+		"benchmarks/markduplicates/{sample}_lessDup.benchmark.txt"
+	#threads : 6
+	log:
+		"logs/markduplicates/{sample}_lessDup.log"
+	shell:
+		"""
+		picard MarkDuplicates \
+		-I {input} \
+		-O {output.f} \
+		-REMOVE_DUPLICATES true\
+		--METRICS_FILE {output.txt} 2> {log}
+        samtools index -b {output.f}
+		"""

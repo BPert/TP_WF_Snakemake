@@ -1,0 +1,38 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/deeptools/heatmap_SpearmanCorr_readCounts.png"),
+		expand("results/deeptools/PlotCoverage")
+
+rule deeptools:
+	params:
+		bam="/home/ubuntu/results/markduplicates/*_lessDup.bam"
+	output:
+		heatmap="results/deeptools/heatmap_SpearmanCorr_readCounts.png",
+		plotcoverage="results/deeptools/PlotCoverage"
+		rawcount="results/deeptools/coverageRawCount.tab"
+	conda:
+		"config/envDeepTools.yaml"
+	benchmark:
+		"benchmarks/DeepTools/deepTools.benchmark.txt"
+	threads : 6
+	log:
+		cover="logs/DeepTools/deepToolsPlotCoverage.log"
+		multi="logs/DeepTools/deepToolsMultiBamSum.log"
+		cor="logs/DeepTools/deepToolsPlotCorrelation.log"
+	shell:
+		"""
+		plotCoverage --bamfiles {params.bam}\
+		--plotFile {output.plotcoverage} \
+		--smartLabels \
+		--outRawCounts {output.rawcount} \
+		--plotFileFormat pdf 2>{log.cover}
+		multiBamSummary bins --bamfiles {params.bam}\
+		-o resultsMultiBamSummary.npz 2>{log.multi}
+		plotCorrelation -in resultsMultiBamSummary.npz \
+		--corMethod spearman --skipZeros \
+		--whatToPlot heatmap --colorMap RdYlBu --plotNumbers \
+		-o heatmap_SpearmanCorr_readCounts.png   \
+		--outFileCorMatrix {output.heatmap} 2>{log.cor}
+		"""

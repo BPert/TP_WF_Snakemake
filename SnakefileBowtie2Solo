@@ -1,0 +1,28 @@
+configfile: "config/config.yaml"
+
+rule all:
+    input:
+        expand("results/bowtie2/{sample}_trim_mapped_sorted_q2.bam", sample = config["samplesCut"]),
+
+
+rule bowtie2:
+    input:
+        fastq1="results/cutadapt/{samplesB}_1.fastq", 
+        fastq2="results/cutadapt/{samplesB}_2.fastq"
+    output:
+        "results/bowtie2/{samplesB}_trim_mapped_sorted_q2.bam"
+    conda:
+        "config/envBowtie2.yaml"
+    benchmark:
+        "benchmarks/bowtie2/{samplesB}_trim_mapped_sorted_q2.benchmark.txt"
+#    threads: 6 
+    log: "logs/bowtie2/{samplesB}_trim_mapped_sorted_q2.log"
+
+    shell:
+        """
+        bowtie2  --very-sensitive  -k 10  -x /home/ubuntu/data/mydatalocal/atacseq/indexes/bowtie2/all \
+        -1 {input.fastq1} -2 {input.fastq2} 2>./logs/bowtie2/errMessage.txt \
+        |  samtools view -q 2 -b -u |  samtools sort -o {output} 
+        samtools index -b {output}
+        """
+

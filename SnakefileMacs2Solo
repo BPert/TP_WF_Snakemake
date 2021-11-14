@@ -1,0 +1,26 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/macs2/{sample}_summits.bed", sample = config["samplesCut"])
+
+rule macs2:
+	input:
+		"results/markduplicates/{sample}_lessDup.bam"
+	output:
+		"results/macs2/{sample}_summits.bed"
+	conda:
+		"config/envMacs2.yaml"
+	benchmark:
+		"benchmarks/macs2/{sample}.benchmark.txt"
+	log:
+		"logs/macs2/{sample}.log"
+	shell:
+		"""
+		mkdir -p  results/macs2/tmpdir
+		macs2 callpeak -t {input}\
+		-f BAM  \
+		-n {wildcards.sample}\
+		--outdir results/macs2/\
+		--tempdir results/macs2/tmpdir 2>{log}
+		"""

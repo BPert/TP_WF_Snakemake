@@ -1,0 +1,31 @@
+configfile: "config/config.yaml"
+
+rule all:
+	input:
+		expand("results/markduplicates/{sample}_lessDup.bam", sample = config["samplesCut"])
+
+
+rule markduplicates:
+	input: #input:  rules.a.output
+		"results/bowtie2/{sample}_trim_mapped_sorted_q2.bam"
+	output:
+		f="results/markduplicates/{sample}_lessDup.bam",
+		txt="results/markduplicates/{sample}_lessDup_metrics.txt"
+#	conda:
+#		"config/envMarkDuplicates.yaml"
+	benchmark:
+		"benchmarks/markduplicates/{sample}_lessDup.benchmark.txt"
+	threads : 8
+	log:
+		"logs/markduplicates/{sample}_lessDup.log"
+	shell:
+		"""
+		java -jar ./.snakemake/conda/73bc5b329231ee9e8a80bc3c404d1652/share/picard-2.26.5-0/picard.jar MarkDuplicates \
+		-I {input} \
+		-O {output.f} \
+		-REMOVE_DUPLICATES true\
+		--METRICS_FILE {output.txt}
+		"""
+#       M="results/markduplicates"
+#		java -jar /opt/apps/picard-2.18.25/picard.jar MarkDuplicates \
+#         java -jar ./.snakemake/conda/73bc5b329231ee9e8a80bc3c404d1652/share/picard-2.26.5-0/picard.jar MarkDuplicates \
