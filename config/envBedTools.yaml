@@ -1,0 +1,6 @@
+channels:
+- bioconda
+- conda-forge
+- default
+dependencies:
+- bedtools==2.27.1

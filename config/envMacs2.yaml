@@ -1,0 +1,16 @@
+channels:
+- bioconda
+- conda-forge
+- default
+dependencies:
+- python
+- numpy
+- cython
+- MACS2
+
+#- python==2.7.9 
+#- numpy==1.9.2 
+#- cython==0.25.2 
+#- MACS2==2.1.2
+
+# module load gcc/4.8.4 python/2.7.9 numpy/1.9.2 cython/0.25.2 cython/0.25.2 MACS2/2.1.2

@@ -1,0 +1,26 @@
+samples:
+ ss_50k_0h_R1_1: data/mydatalocal/atacseq/subsets/ss_50k_0h_R1_1.fastq.gz
+ ss_50k_0h_R1_2: data/mydatalocal/atacseq/subsets/ss_50k_0h_R1_2.fastq.gz
+ ss_50k_0h_R2_1: data/mydatalocal/atacseq/subsets/ss_50k_0h_R2_1.fastq.gz
+ ss_50k_0h_R2_2: data/mydatalocal/atacseq/subsets/ss_50k_0h_R2_2.fastq.gz
+ ss_50k_0h_R3_1: data/mydatalocal/atacseq/subsets/ss_50k_0h_R3_1.fastq.gz
+ ss_50k_0h_R3_2: data/mydatalocal/atacseq/subsets/ss_50k_0h_R3_2.fastq.gz
+ ss_50k_24h_R1_1: data/mydatalocal/atacseq/subsets/ss_50k_24h_R1_1.fastq.gz
+ ss_50k_24h_R1_2: data/mydatalocal/atacseq/subsets/ss_50k_24h_R1_2.fastq.gz
+ ss_50k_24h_R2_1: data/mydatalocal/atacseq/subsets/ss_50k_24h_R2_1.fastq.gz
+ ss_50k_24h_R2_2: data/mydatalocal/atacseq/subsets/ss_50k_24h_R2_2.fastq.gz
+ ss_50k_24h_R3_1: data/mydatalocal/atacseq/subsets/ss_50k_24h_R3_1.fastq.gz
+ ss_50k_24h_R3_2: data/mydatalocal/atacseq/subsets/ss_50k_24h_R3_2.fastq.gz
+ 
+samplesCut:
+ ss_50k_0h_R1: tmp/ss_50k_0h_R1_
+ ss_50k_0h_R2: tmp/ss_50k_0h_R2_
+ ss_50k_0h_R3: tmp/ss_50k_0h_R3_
+ ss_50k_24h_R1: tmp/ss_50k_24h_R1_
+ ss_50k_24h_R2: tmp/ss_50k_24h_R2_
+ ss_50k_24h_R3: tmp/ss_50k_24h_R3_
+
+idBedtools:
+  R1: NA
+  R2: NA
+  R3: NA

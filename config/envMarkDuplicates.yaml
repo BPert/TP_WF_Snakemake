@@ -1,0 +1,10 @@
+channels:
+- bioconda
+- conda-forge
+- default
+dependencies:
+- picard
+- samtools
+#- java==oracle-1.11.0_11 
+#- picard==2.18.25-0
+#- samtools==1.9 
