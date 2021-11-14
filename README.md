@@ -7,6 +7,7 @@ Here we use Snakemake to execute the workflow in a Cloud called ifb‑aubi‑osc
 
 **appliance : BioPipes**
 
+To run the entire workflow
 
 
 # Snakemake Rules:
