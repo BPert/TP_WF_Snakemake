@@ -34,6 +34,7 @@ For keeping just the importants files, run the workflow with the file **Snakefil
 ```
 snakemake --use-conda --cores all --snakefile Snakefile_WF_tmp
 ```
+!!!! It seems that there is an error in Snakefile_WF_tmp, it might be not working.
 
 The workflows **Snakefile_WF_withOpenJDK** and **Snakefile_WF_tmp** will create log files (in the log directory) and benchmark files (in the benchmark directory) to give you some informations.
 
