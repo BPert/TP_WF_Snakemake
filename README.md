@@ -16,7 +16,7 @@ conda activate snakemake
 
 The main snakemake file is **Snakefile_WF_withOpenJDK**
 
-A code quality checker have been used for Snakefile_WF_withOpenJDK to analyze the workflow and highlights issues that should be solved in order to follow best practices, achieve maximum readability, and reproducibility. The linter can be invoked with:
+A code quality checker (linter) have been used for Snakefile_WF_withOpenJDK to analyze the workflow and highlights issues that should be solved in order to follow best practices, achieve maximum readability, and reproducibility. The linter can be invoked with:
 ```
 snakemake --lint --snakefile Snakefile_WF_withOpenJDK
 ```
@@ -27,14 +27,15 @@ We just haven't gave a conda environment for te rule unzip.
 ```
 snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK
 ```
-**Snakefile_WF_withOpenJDK** keep all the intermediate files.
+**Snakefile_WF_withOpenJDK** keep all the intermediates files.
 
-For keeping just the importants files, run the worflow with 
+For keeping just the importants files, run the workflow with the file **Snakefile_WF_tmp** with:
 
+```
+snakemake --use-conda --cores all --snakefile Snakefile_WF_tmp
+```
 
-
-
-The workflow will create log files (in the log directory) and benchmark files (in the benchmark directory) to give you some informations.
+The workflows **Snakefile_WF_withOpenJDK** and **Snakefile_WF_tmp** will create log files (in the log directory) and benchmark files (in the benchmark directory) to give you some informations.
 
 Others snakefiles contain just a specific rule or a part of the workflow. The file Snakemake_WF is an alternative workflow without the DeepTools analysis.
 
@@ -68,7 +69,7 @@ snakemake --dag results/bedtools/{R1,R2,R3}_0h_24h_common_peaks.bed | dot -Tsvg 
 
 # Snakemake Rules:
 
-Individual steps are almost still the same.
+Individual steps are almost still the same from the HPC project
 
 ## Unzip fastq files
 >rule unzip:
