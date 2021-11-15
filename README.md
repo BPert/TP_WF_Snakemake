@@ -20,6 +20,7 @@ A code quality checker have been used for Snakefile_WF_withOpenJDK to analyze th
 ```
 snakemake --lint --snakefile Snakefile_WF_withOpenJDK
 ```
+We just haven't gave a conda environment for te rule unzip.
 
 ## To run the entire workflow, the command line is:
 
