@@ -8,10 +8,20 @@ Here we use Snakemake to execute the workflow in a Cloud called ifb‑aubi‑osc
 
 **appliance : BioPipes**
 
+Since we use snakemake, we must activate it by:
+```
+conda activate snakemake
+```
+
 
 The main snakemake file is **Snakefile_WF_withOpenJDK**
 
-To run the entire workflow, the command line is:
+A code quality checker have been used for Snakefile_WF_withOpenJDK to analyze the workflow and highlights issues that should be solved in order to follow best practices, achieve maximum readability, and reproducibility. The linter can be invoked with:
+```
+snakemake --lint --snakefile Snakefile_WF_withOpenJDK
+```
+
+## To run the entire workflow, the command line is:
 
 ```
 snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK
@@ -26,8 +36,17 @@ All the data come from  student22@193.49.167.88 :
 Genome:
 > /home/users/shared/databanks/bio/ncbi/genomes/Mus_musculus/Mus_musculus_GRCm38.p6/Mus_musculus_2020-7-9/fasta/
 
+and must be in this directory:
+> ./data/mydatalocal/atacseq/genome
+
 Indexes : 
 > /home/users/shared/databanks/bio/ncbi/genomes/Mus_musculus/Mus_musculus_GRCm38.p6/Mus_musculus_2020-7-9/bowtie2/
+
+and must be in this directory:
+> ./data/mydatalocal/atacseq/indexes/bowtie2
+
+All  the fastq.gz files must be in :
+> ./data/mydatalocal/atacseq/subsets
 
 The DAG view obtained by:
 ```
@@ -56,6 +75,8 @@ Uses fastqc to execute a quick initial quality control of the sequencing results
 >rule cutadapt:
 
 Removal of adapters via cutadaptc. If you wish to use this for another analysis with similar workflow, be sure to change the adapter sequences used as needed. Takes fastq input, gives fastq output.
+
+**Here a wrapper have been used just to investigate a little bit further on how this function work...** 
 
 ## Post-trimming quality control 
 >rule fastqc_post:
