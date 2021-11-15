@@ -26,7 +26,7 @@ Genome:
 Indexes : 
 > /home/users/shared/databanks/bio/ncbi/genomes/Mus_musculus/Mus_musculus_GRCm38.p6/Mus_musculus_2020-7-9/bowtie2/
 
-<img src="dag.sgv" />
+<img src="DAG.png" />
 
 # Snakemake Rules:
 
