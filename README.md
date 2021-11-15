@@ -1,19 +1,4 @@
 
-
-
-
-```bash
-print("Yo!")
-```
-```diff
-- text in red
-+ text in green
-! text in orange
-# text in gray
-@@ text in purple (and bold)@@
-```
-
-
 # TP_WF_Snakemake
 
 The purpose of this project is to execute the same analysis worflow describe in the HPC project in this github in another way.
@@ -28,8 +13,8 @@ The main snakemake file is **Snakefile_WF_withOpenJDK**
 
 To run the entire workflow, the command line is:
 
-```diff
-$ snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK 
+```
+snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK
 ```
 
 Others snakefiles contain just a specific rule or a part of the workflow. The file Snakemake_WF is an alternative workflow without the DeepTools analysis.
@@ -44,6 +29,13 @@ Genome:
 Indexes : 
 > /home/users/shared/databanks/bio/ncbi/genomes/Mus_musculus/Mus_musculus_GRCm38.p6/Mus_musculus_2020-7-9/bowtie2/
 
+The DAG view obtained by:
+```
+sudo apt install graphviz
+```
+```
+snakemake --dag results/bedtools/{R1,R2,R3}_0h_24h_common_peaks.bed | dot -Tsvg > dag.svg
+```
 <img src="DAG.png" />
 
 # Snakemake Rules:
