@@ -22,11 +22,19 @@ snakemake --lint --snakefile Snakefile_WF_withOpenJDK
 ```
 We just haven't gave a conda environment for te rule unzip.
 
-## To run the entire workflow, the command line is:
+## To run the entire workflow, with **Snakefile_WF_withOpenJDK**, the command line is:
 
 ```
 snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK
 ```
+**Snakefile_WF_withOpenJDK** keep all the intermediate files.
+
+For keeping just the importants files, run the worflow with 
+
+
+
+
+The workflow will create log files (in the log directory) and benchmark files (in the benchmark directory) to give you some informations.
 
 Others snakefiles contain just a specific rule or a part of the workflow. The file Snakemake_WF is an alternative workflow without the DeepTools analysis.
 
