@@ -1,3 +1,19 @@
+
+
+
+
+```bash
+print("Yo!")
+```
+```diff
+- text in red
++ text in green
+! text in orange
+# text in gray
+@@ text in purple (and bold)@@
+```
+
+
 # TP_WF_Snakemake
 
 The purpose of this project is to execute the same analysis worflow describe in the HPC project in this github in another way.
@@ -12,7 +28,9 @@ The main snakemake file is **Snakefile_WF_withOpenJDK**
 
 To run the entire workflow, the command line is:
 
-> $ snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK 
+```diff
+$ snakemake --use-conda --cores all  --snakefile Snakefile_WF_withOpenJDK 
+```
 
 Others snakefiles contain just a specific rule or a part of the workflow. The file Snakemake_WF is an alternative workflow without the DeepTools analysis.
 
